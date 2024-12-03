@@ -83,13 +83,13 @@ resolve_python_path() {
 
   local pythons=()
 
+  if [ -z "${ASDF_PYAPP_SKIP_GLOBAL_PYTHON+x}" ]; then
+    pythons+=(/usr/bin/python3)
+  fi
+  pythons+=(python3)
   local asdf_python
   if asdf_python=$(asdf which python3 2>/dev/null); then
     pythons+=("$asdf_python")
-  else
-    local global_python
-    global_python=$(which python3)
-    pythons+=("$global_python")
   fi
 
   for p in "${pythons[@]}"; do

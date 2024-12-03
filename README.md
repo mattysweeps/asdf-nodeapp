@@ -83,13 +83,15 @@ When installing a tool, asdf-pyapp creates a fresh [virtual environment](https:/
 
 ## Python Resolution
 
-To run Python Applications, you need Python:
+To run Python Applications, you need Python. The Python interpreter is chosen
+in the following order:
 
-1. If `ASDF_PYAPP_DEFAULT_PYTHON_PATH` is set - use it
-1. Else if the `asdf-python` plugin is installed - use the **global** `python3`\*\*.
-1. Finally, just use `python3` in our path.
+1. Use `ASDF_PYAPP_DEFAULT_PYTHON_PATH` if it is set
+1. Use the global python /usr/bin/python3 if it exists\*\*
+1. `Use the python3` in our path.
+1. Use the `python set by the asdf-python` plugin
 
-\*\* _We use the global `python3` to avoid picking up local python versions inside projects, which would result in inconsistent tool installations. If you want to install a tool with a specific version of Python see the following section on asdf-python Integration._
+\*\* _We use the global `/usr/bin/python3` to avoid picking up local python versions inside projects, which would result in inconsistent tool installations. If you want to install a tool with a specific version of Python see the following section on asdf-python Integration._ You can also set ASDF_PYAPP_SKIP_GLOBAL_PYTHON=y to skip checking for /usr/bin/python3.
 
 ## asdf-python Integration (Experimental)
 
