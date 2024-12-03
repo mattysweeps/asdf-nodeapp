@@ -118,48 +118,8 @@ resolve_python_path() {
 }
 
 get_package_versions() {
-  # Returns a newline-separted list of versions. `list-all` must output
-  # versions on one line, so this expects it's output to be further processed.
-  #
-  # TODO: this uses ASDF_PYAPP_RESOLVED_PYTHON_PATH, but technically python 3.6
-  # isn't required to list versions...
-
   local package=$1
-
-  local pip_version
-  pip_version=$(get_python_pip_versions "$ASDF_PYAPP_RESOLVED_PYTHON_PATH")
-  if [[ $pip_version =~ ^([0-9]+)\.([0-9]+)\.? ]]; then
-    local pip_version_major=${BASH_REMATCH[1]}
-    local pip_version_minor=${BASH_REMATCH[2]}
-  else
-    fail "Unable to parse pip version"
-  fi
-
-  local pip_install_args=()
-  local version_output_raw
-
-  # we rely on the "legacy resolver" to get versions, which was introduced in 20.3
-  if [ "${pip_version_major}" -ge 21 ] ||
-    { [ "${pip_version_major}" -eq 20 ] && [ "${pip_version_minor}" -ge 3 ]; }; then
-    pip_install_args+=("--use-deprecated=legacy-resolver")
-  fi
-  version_output_raw=$("${ASDF_PYAPP_RESOLVED_PYTHON_PATH}" -m pip install ${pip_install_args[@]+"${pip_install_args[@]}"} "${package}==" 2>&1) || true
-
-  local regex='.*from versions:(.*)\)'
-  if [[ $version_output_raw =~ $regex ]]; then
-    local version_substring="${BASH_REMATCH[1]//','/}"
-    # trim whitespace with 'xargs echo' and convert spaces to newlines with 'tr'
-    local version_list
-    version_list=$(echo "$version_substring" | xargs echo | tr " " "\n")
-    echo "$version_list"
-  else
-    fail "Unable to parse versions for '${package}'"
-  fi
-}
-
-sort_versions() {
-  sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
-    LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
+  curl "https://pypi.org/pypi/${package}/json" | jq -r '.releases | keys | .[]' | sort -V
 }
 
 install_version() {
