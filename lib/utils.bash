@@ -164,12 +164,21 @@ install_version() {
   # Make a venv for the app
   local venv_path="$install_path"/venv
   "$ASDF_PYAPP_RESOLVED_PYTHON_PATH" -m venv ${venv_args[@]+"${venv_args[@]}"} "$venv_path"
+
   # setuptools might be upgraded by itself https://stackoverflow.com/a/71239956/4468
   "$venv_path"/bin/python3 -m pip install ${pip_args[@]+"${pip_args[@]}"} --upgrade setuptools
   "$venv_path"/bin/python3 -m pip install ${pip_args[@]+"${pip_args[@]}"} --upgrade pip wheel
 
+  (
+  # export env vars
+  if [[ -e "$ASDF_PLUGIN_PATH/install_env" ]]; then
+    log "sourcing $ASDF_PLUGIN_PATH/install_env"
+    eval "$(cat "$ASDF_PLUGIN_PATH/install_env" | grep '^export ' | awk '{print $1 " " $2}' | grep -v ';')"
+  fi
+
   # Install the App
   "$venv_path"/bin/python3 -m pip install "$package"=="$app_version"
+  )
 
   # Set up a venv for the linker helper
   local link_apps_venv="$install_path"/tmp/link_apps
