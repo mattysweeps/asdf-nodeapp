@@ -171,9 +171,9 @@ install_version() {
 
   (
   # export env vars
-  if [[ -e "$ASDF_PLUGIN_PATH/install_env" ]]; then
+  if [[ -n "${ASDF_PLUGIN_PATH-}" ]] && [[ -e "$ASDF_PLUGIN_PATH/install_env" ]]; then
     log "sourcing $ASDF_PLUGIN_PATH/install_env"
-    eval "$(cat "$ASDF_PLUGIN_PATH/install_env" | grep '^export ' | awk '{print $1 " " $2}' | grep -v ';')"
+    eval "$(grep '^export ' "$ASDF_PLUGIN_PATH/install_env" | awk '{print $1 " " $2}' | grep -v ';')"
   fi
 
   # Install the App
