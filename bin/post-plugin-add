@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-if [[ "${ASDF_PYAPP_INCLUDE_DEPS-}" = "1" ]]; then
+if [[ "${ASDF_NODEAPP_INCLUDE_DEPS-}" = "1" ]]; then
   touch "$ASDF_PLUGIN_PATH/include_deps"
 fi
 
-env | grep ^ASDF_PYAPP_ENV_ | sed 's/ASDF_PYAPP_ENV_/export /' > "$ASDF_PLUGIN_PATH/install_env"
+env | grep ^ASDF_NODEAPP_ENV_ | sed 's/ASDF_NODEAPP_ENV_/export /' > "$ASDF_PLUGIN_PATH/install_env"

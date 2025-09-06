@@ -1,150 +1,142 @@
 <div align="center">
 
-# asdf-pyapp ![Build](https://github.com/amrox/asdf-pyapp/workflows/Build/badge.svg) ![Lint](https://github.com/amrox/asdf-pyapp/workflows/Lint/badge.svg)
+# asdf-nodeapp ![Build](https://github.com/mattysweeps/asdf-nodeapp/workflows/Build/badge.svg) ![Lint](https://github.com/mattysweeps/asdf-nodeapp/workflows/Lint/badge.svg)
 
-A generic Python Application plugin the [asdf version manager](https://asdf-vm.com).
+A generic Node.js Application plugin for the [asdf version manager](https://asdf-vm.com).
 
 </div>
 
-**What is a "Python Application"?**
+**What is a "Node.js Application"?**
 
-For purposes of this plugin, a Python Application is program that _happens_ to be written in Python, but otherwise behaves like a regular command-line tool. The term "Python Application" comes from [pipx](https://pypa.github.io/pipx/).
+For purposes of this plugin, a Node.js Application is a program that _happens_ to be written in Node.js, but otherwise behaves like a regular command-line tool.
 
-Examples of Python Applications are [awscli](https://pypi.org/project/awscli/) and [conan](https://pypi.org/project/conan/). See below for more compatible applications.
+Examples of Node.js Applications are [bash-language-server](https://www.npmjs.com/package/bash-language-server) and [@angular/cli](https://www.npmjs.com/package/@angular/cli). See below for more compatible applications.
 
 # Dependencies
 
-- `python`/`python3` >= 3.6 with pip and venv
-- OR [asdf-python](https://github.com/danhper/asdf-python) installed
+- `node` and `npm` >= 16
+- OR [asdf-nodejs](https://github.com/asdf-vm/asdf-nodejs) installed
 
 # Install
 
 Plugin:
 
 ```shell
-asdf plugin add <python app> https://github.com/amrox/asdf-pyapp.git
+asdf plugin add <node app> https://github.com/mattysweeps/asdf-nodeapp.git
 # for example
-asdf plugin add cowsay https://github.com/amrox/asdf-pyapp.git
+asdf plugin add bash-language-server https://github.com/mattysweeps/asdf-nodeapp.git
 ```
 
-Example using `cowsay`:
+Example using `bash-language-server`:
 
 ```shell
 # Show all installable versions
-asdf list-all cowsay
+asdf list-all bash-language-server
 
 # Install specific version
-asdf install cowsay latest
+asdf install bash-language-server latest
 
 # Set a version globally (on your ~/.tool-versions file)
-asdf global cowsay latest
+asdf global bash-language-server latest
 
-# Now cowsay commands are available
-cowsay "Hi!"
+# Now bash-language-server commands are available
+bash-language-server --help
 ```
 
-## Compatible Python Applications
+## Compatible Node.js Applications
 
-This is a non-exhaustive list of Python Applications that work with this plugin.
+This is a non-exhaustive list of Node.js Applications that work with this plugin.
 
 | App                                                      | Command to add Plugin                                                                       | Notes                                                              |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [ansible](https://pypi.org/project/ansible/)             | `ASDF_PYAPP_INCLUDE_DEPS=1 asdf plugin add ansible https://github.com/amrox/asdf-pyapp.git` | [(info)](#environment-variables)                                   |
-| [awscli](https://pypi.org/project/awscli/)               | `asdf plugin add awscli https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
-| [awsebcli](https://pypi.org/project/awsebcli/)           | `asdf plugin add awsebcli https://github.com/amrox/asdf-pyapp.git`                          |                                                                    |
-| [aws-sam-cli](https://pypi.org/project/aws-sam-cli/)     | `asdf plugin add aws-sam-cli https://github.com/amrox/asdf-pyapp.git`                       |                                                                    |
-| [aws-ssm-tools](https://pypi.org/project/aws-ssm-tools/) | `asdf plugin add aws-ssm-tools https://github.com/amrox/asdf-pyapp.git`                     |                                                                    |
-| [black](https://pypi.org/project/black/)                 | `asdf plugin add black https://github.com/amrox/asdf-pyapp.git`                             |                                                                    |
-| [bpython](https://pypi.org/project/bpython/)             | `asdf plugin add bpython https://github.com/amrox/asdf-pyapp.git`                           |                                                                    |
-| [conan](https://pypi.org/project/conan/)                 | `asdf plugin add conan https://github.com/amrox/asdf-pyapp.git`                             |                                                                    |
-| [cowsay](https://pypi.org/project/cowsay/)               | `asdf plugin add cowsay https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
-| [dbt](https://pypi.org/project/dbt/)                     | `ASDF_PYAPP_INCLUDE_DEPS=1 asdf plugin add dbt https://github.com/amrox/asdf-pyapp.git`     | [(info)](#environment-variables)                                   |
-| [doit](https://pypi.org/project/doit/)                   | `asdf plugin add doit https://github.com/amrox/asdf-pyapp.git`                              |                                                                    |
-| [flake8](https://pypi.org/project/flake8/)               | `asdf plugin add flake8 https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
-| [hy](https://pypi.org/project/hy/)                       | `asdf plugin add hy https://github.com/amrox/asdf-pyapp.git`                                | The latest stable version of hy (0.20.0 atm) requires python > 3.8 |
-| [meson](https://pypi.org/project/meson/)                 | `asdf plugin add meson https://github.com/amrox/asdf-pyapp.git`                             |                                                                    |
-| [mypy](https://pypi.org/project/mypy/)                   | `asdf plugin add mypy https://github.com/amrox/asdf-pyapp.git`                              |                                                                    |
-| [pipenv](https://pypi.org/project/pipenv/)               | `asdf plugin add pipenv https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
-| [pre-commit](https://pypi.org/project/pre-commit/)       | `asdf plugin add pre-commit https://github.com/amrox/asdf-pyapp.git`                        |                                                                    |
-| [salt](https://pypi.org/project/salt/)                   | `asdf plugin add salt https://github.com/amrox/asdf-pyapp.git`                              |                                                                    |
-| [sphinx](https://pypi.org/project/Sphinx/)               | `asdf plugin add sphinx https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
-| [yawsso](https://pypi.org/project/yawsso/)               | `asdf plugin add sphinx https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
-| [youtube-dl](https://pypi.org/project/youtube-dl/)       | `asdf plugin add sphinx https://github.com/amrox/asdf-pyapp.git`                            |                                                                    |
+| [@angular/cli](https://www.npmjs.com/package/@angular/cli) | `asdf plugin add @angular/cli https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [bash-language-server](https://www.npmjs.com/package/bash-language-server) | `asdf plugin add bash-language-server https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [create-react-app](https://www.npmjs.com/package/create-react-app) | `asdf plugin add create-react-app https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [eslint](https://www.npmjs.com/package/eslint) | `asdf plugin add eslint https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [gatsby-cli](https://www.npmjs.com/package/gatsby-cli) | `asdf plugin add gatsby-cli https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [netlify-cli](https://www.npmjs.com/package/netlify-cli) | `asdf plugin add netlify-cli https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [nodemon](https://www.npmjs.com/package/nodemon) | `asdf plugin add nodemon https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [npm](https://www.npmjs.com/package/npm) | `asdf plugin add npm https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [pm2](https://www.npmjs.com/package/pm2) | `asdf plugin add pm2 https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [prettier](https://www.npmjs.com/package/prettier) | `asdf plugin add prettier https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [typescript](https://www.npmjs.com/package/typescript) | `asdf plugin add typescript https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [vue-cli](https://www.npmjs.com/package/@vue/cli) | `asdf plugin add @vue/cli https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [webpack-cli](https://www.npmjs.com/package/webpack-cli) | `asdf plugin add webpack-cli https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
+| [yarn](https://www.npmjs.com/package/yarn) | `asdf plugin add yarn https://github.com/mattysweeps/asdf-nodeapp.git` |                                                                    |
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to install & manage versions.
 
 # How it Works
 
-asdf-pyapp is a lot more complex than most asdf plugins since it's designed to work with generic Python Applications, and challenges that come with Python itself.
+asdf-nodeapp is a lot more complex than most asdf plugins since it's designed to work with generic Node.js Applications, and challenges that come with Node.js package management.
 
-asdf-pyapp uses the same technique as [asdf-hashicorp](https://github.com/asdf-community/asdf-hashicorp) to use a single plugin for multiple tools.
+asdf-nodeapp uses the same technique as [asdf-hashicorp](https://github.com/asdf-community/asdf-hashicorp) to use a single plugin for multiple tools.
 
-When installing a tool, asdf-pyapp creates a fresh [virtual environment](https://docs.python.org/3/tutorial/venv.html) and pip-installs the package matching the plugin name. Then it uses pipx under the hood to extract the entrypoints for the package exposes them to asdf.
+When installing a tool, asdf-nodeapp creates a fresh directory with its own `node_modules` and npm-installs the package matching the plugin name. Then it symlinks the binaries provided by the package to make them available to asdf.
 
-## Python Resolution
+## Node.js Resolution
 
-To run Python Applications, you need Python. The Python interpreter is chosen
+To run Node.js Applications, you need Node.js. The Node.js runtime is chosen
 in the following order:
 
-1. Use `ASDF_PYAPP_DEFAULT_PYTHON_PATH` if it is set
-1. Use the global python /usr/bin/python3 if it exists\*\*
-1. `Use the python3` in our path.
-1. Use the `python set by the asdf-python` plugin
+1. Use `ASDF_NODEAPP_DEFAULT_NODE_PATH` if it is set
+2. Use the global node `/usr/local/bin/node` if it exists
+3. Use the `node` in our path
+4. Use the `node` set by the asdf-nodejs plugin
 
-\*\* _We use the global `/usr/bin/python3` to avoid picking up local python versions inside projects, which would result in inconsistent tool installations. If you want to install a tool with a specific version of Python see the following section on asdf-python Integration._ You can also set ASDF_PYAPP_SKIP_GLOBAL_PYTHON=y to skip checking for /usr/bin/python3.
-
-## asdf-python Integration (Experimental)
+## asdf-nodejs Integration (Experimental)
 
 Here we color outside the lines a bit :)
 
-asdf-python supports installing a Python App with a _specific_ Python version using a special syntax. This feature requires the [asdf-python](https://github.com/danhper/asdf-python) plugin to be installed.
+asdf-nodejs supports installing a Node.js App with a _specific_ Node.js version using a special syntax. This feature requires the [asdf-nodejs](https://github.com/asdf-vm/asdf-nodejs) plugin to be installed.
 
 The general form is:
 
 ```shell
-asdf <app> install <app-version>@<python-version>
+asdf <app> install <app-version>@<node-version>
 ```
 
-For example, to install `cowsay` 3.0 with Python 3.9.1:
+For example, to install `bash-language-server` 3.1.0 with Node.js 18.17.0:
 
 ```shell
-asdf cowsay install 3.0@3.9.1
+asdf bash-language-server install 3.1.0@18.17.0
 ```
 
-Python Apps with different python versions and python itself can all happily co-exist in the same project. For example, take this `.tool-versions`:
+Node.js Apps with different Node.js versions and Node.js itself can all happily co-exist in the same project. For example, take this `.tool-versions`:
 
 ```shell
-python 3.8.5
-awscli 1.19.93
-cowsay 3.0@3.9.1
-conan 1.36.0@3.8.5
+nodejs 18.17.0
+bash-language-server 3.1.0
+eslint 8.45.0@16.20.0
+prettier 3.0.0@18.17.0
 ```
 
-- `awscli` will be installed with the global Python (see Python Resolution), in an isolated virtual environment
-- Python 3.9.1 will be installed, and then `cowsay` will be installed using that Python (in a venv)
-- `conan` will be installed with Python 3.8.5, but isolated from the project's Python, which is also 3.8.5.
+- `bash-language-server` will be installed with the global Node.js (see Node.js Resolution), in an isolated directory
+- Node.js 16.20.0 will be used for `eslint` installation
+- `prettier` will be installed with Node.js 18.17.0, but isolated from the project's Node.js, which is also 18.17.0.
 
 # Configuration
 
 ## Environment Variables
 
-- `ASDF_PYAPP_INCLUDE_DEPS` - when set to `1`, this plugin will consider the executables of the dependencies of the installed package as well. For example, when installing `ansible`, the `ansible` command actually comes from its depency, `ansible-core`. This is the same as Pipx's `--include-deps` flag.
-- `ASDF_PYAPP_DEFAULT_PYTHON_PATH` - Path to a `python`/`python3` binary this plugin should use. Default is unset. See Python Resolution section for more details.
-- `ASDF_PYAPP_VENV_COPY_MODE`:
-  - `0`: (default) Add `--copies` flag to venvs created with a specific Python version. Symlinks otherwise.
-  - `1`: Prefer `--copies` whenever possible (`--copies` does not work with `/usr/bin/python3` on macOS).
-- `ASDF_PYAPP_DEBUG` - Set to `1` for additional logging
+- `ASDF_NODEAPP_INCLUDE_DEPS` - when set to `1`, this plugin will consider the executables of the dependencies of the installed package as well. For example, when installing `@angular/cli`, additional commands from its dependencies might also be made available.
+- `ASDF_NODEAPP_DEFAULT_NODE_PATH` - Path to a `node` binary this plugin should use. Default is unset. See Node.js Resolution section for more details.
+- `ASDF_NODEAPP_DEBUG` - Set to `1` for additional logging
 
 # Background and Inspiration
 
-asdf-pyapp was inspired by [asdf-hashicorp](https://github.com/asdf-community/asdf-hashicorp) and [pipx](https://pypa.github.io/pipx/) - which is also used under the hood. Big thanks to the creators, contributors, and maintainers of both these projects.
+asdf-nodeapp was inspired by [asdf-hashicorp](https://github.com/asdf-community/asdf-hashicorp) and [asdf-pyapp](https://github.com/amrox/asdf-pyapp). Big thanks to the creators, contributors, and maintainers of both these projects.
 
 # Contributing
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).
 
-[Thanks goes to these contributors](https://github.com/amrox/asdf-pyapp/graphs/contributors)!
+[Thanks goes to these contributors](https://github.com/mattysweeps/asdf-nodeapp/graphs/contributors)!
 
 # License
 
-See [LICENSE](LICENSE) © [Andy Mroczkowski](https://github.com/amrox/)
+See [LICENSE](LICENSE) © [Matthew Broomfield](https://github.com/mattysweeps/)
+
+---
+
+*This project is based on [asdf-pyapp](https://github.com/amrox/asdf-pyapp) by Andy Mroczkowski, licensed under MIT.*

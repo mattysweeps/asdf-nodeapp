@@ -1,79 +1,67 @@
-ASDF_PYAPP_MY_NAME=asdf-pyapp
+ASDF_NODEAPP_MY_NAME=asdf-nodeapp
 
-# 0: (default) Copy venvs with explicit python version, symlink otherwise.
-# 1: Prefer copies.
-ASDF_PYAPP_VENV_COPY_MODE=${ASDF_PYAPP_VENV_COPY_MODE:-0}
+ASDF_NODEAPP_RESOLVED_NODE_PATH=
 
-ASDF_PYAPP_RESOLVED_PYTHON_PATH=
-
-if [[ ${ASDF_PYAPP_DEBUG:-} -eq 1 ]]; then
-  # In debug mode, dunp everything to a log file
+if [[ ${ASDF_NODEAPP_DEBUG:-} -eq 1 ]]; then
+  # In debug mode, dump everything to a log file
   # got a little help from https://askubuntu.com/a/1345538/985855
 
-  ASDF_PYAPP_DEBUG_LOG_PATH="/tmp/${ASDF_PYAPP_MY_NAME}-debug.log"
-  mkdir -p "$(dirname "$ASDF_PYAPP_DEBUG_LOG_PATH")"
+  ASDF_NODEAPP_DEBUG_LOG_PATH="/tmp/${ASDF_NODEAPP_MY_NAME}-debug.log"
+  mkdir -p "$(dirname "$ASDF_NODEAPP_DEBUG_LOG_PATH")"
 
-  printf "\n\n-------- %s ----------\n\n" "$(date)" >>"$ASDF_PYAPP_DEBUG_LOG_PATH"
+  printf "\n\n-------- %s ----------\n\n" "$(date)" >>"$ASDF_NODEAPP_DEBUG_LOG_PATH"
 
-  exec > >(tee -ia "$ASDF_PYAPP_DEBUG_LOG_PATH")
-  exec 2> >(tee -ia "$ASDF_PYAPP_DEBUG_LOG_PATH" >&2)
+  exec > >(tee -ia "$ASDF_NODEAPP_DEBUG_LOG_PATH")
+  exec 2> >(tee -ia "$ASDF_NODEAPP_DEBUG_LOG_PATH" >&2)
 
-  exec 19>>"$ASDF_PYAPP_DEBUG_LOG_PATH"
+  exec 19>>"$ASDF_NODEAPP_DEBUG_LOG_PATH"
   export BASH_XTRACEFD=19
   set -x
 fi
 
 fail() {
-  echo >&2 -e "${ASDF_PYAPP_MY_NAME}: [ERROR] $*"
+  echo >&2 -e "${ASDF_NODEAPP_MY_NAME}: [ERROR] $*"
   exit 1
 }
 
 log() {
-  if [[ ${ASDF_PYAPP_DEBUG:-} -eq 1 ]]; then
-    echo >&2 -e "${ASDF_PYAPP_MY_NAME}: $*"
+  if [[ ${ASDF_NODEAPP_DEBUG:-} -eq 1 ]]; then
+    echo >&2 -e "${ASDF_NODEAPP_MY_NAME}: $*"
   fi
 }
 
-get_python_version() {
-  local python_path="$1"
-  local regex='Python (.+)'
+get_node_version() {
+  local node_path="$1"
+  local regex='v(.+)'
 
-  python_version_raw=$("$python_path" --version)
+  node_version_raw=$("$node_path" --version)
 
-  if [[ $python_version_raw =~ $regex ]]; then
+  if [[ $node_version_raw =~ $regex ]]; then
     echo -n "${BASH_REMATCH[1]}"
   else
-    fail "Unable to determine python version"
+    fail "Unable to determine node version"
   fi
 }
 
-get_python_pip_versions() {
-  local python_path="$1"
+get_npm_version() {
+  local npm_path="$1"
 
-  local pip_version_raw
-  pip_version_raw=$("${python_path}" -m pip --version)
-  local regex='pip (.+) from.*\(python (.+)\)'
-
-  if [[ $pip_version_raw =~ $regex ]]; then
-    echo -n "${BASH_REMATCH[1]}"
-    #ASDF_PYAPP_PYTHON_VERSION="${BASH_REMATCH[2]}" # probably not longer needed
-  else
-    fail "Unable to determine pip version"
-  fi
+  npm_version_raw=$("${npm_path}" --version)
+  echo -n "$npm_version_raw"
 }
 
-resolve_python_path() {
-  # if ASDF_PYAPP_DEFAULT_PYTHON_PATH is set, use it, else:
-  # 1. try $(asdf which python)
-  # 2. try $(which python3)
+resolve_node_path() {
+  # if ASDF_NODEAPP_DEFAULT_NODE_PATH is set, use it, else:
+  # 1. try $(which node)
+  # 2. try $(asdf which node)
+  # 3. try /usr/local/bin/node
 
-  if [ -n "${ASDF_PYAPP_DEFAULT_PYTHON_PATH+x}" ]; then
-    ASDF_PYAPP_RESOLVED_PYTHON_PATH="$ASDF_PYAPP_DEFAULT_PYTHON_PATH"
+  if [ -n "${ASDF_NODEAPP_DEFAULT_NODE_PATH+x}" ]; then
+    ASDF_NODEAPP_RESOLVED_NODE_PATH="$ASDF_NODEAPP_DEFAULT_NODE_PATH"
     return
   fi
 
-  # cd to $HOME to avoid picking up a local python from .tool-versions
-  # pipx is best when install with a global python
+  # cd to $HOME to avoid picking up a local node from .tool-versions
   pushd "$HOME" >/dev/null || fail "Failed to pushd \$HOME"
 
   # run direnv in $HOME to escape any direnv we might already be in
@@ -81,27 +69,25 @@ resolve_python_path() {
     eval "$(DIRENV_LOG_FORMAT= direnv export bash)"
   fi
 
-  local pythons=()
+  local nodes=()
 
-  if [ -z "${ASDF_PYAPP_SKIP_GLOBAL_PYTHON+x}" ]; then
-    pythons+=(/usr/bin/python3)
+  nodes+=(node)
+  local asdf_node
+  if asdf_node=$(asdf which node 2>/dev/null); then
+    nodes+=("$asdf_node")
   fi
-  pythons+=(python3)
-  local asdf_python
-  if asdf_python=$(asdf which python3 2>/dev/null); then
-    pythons+=("$asdf_python")
-  fi
+  nodes+=(/usr/local/bin/node)
 
-  for p in "${pythons[@]}"; do
-    local python_version
-    log "Testing '$p' ..."
-    python_version=$(get_python_version "$p")
-    if [[ $python_version =~ ^([0-9]+)\.([0-9]+)\. ]]; then
-      local python_version_major=${BASH_REMATCH[1]}
-      local python_version_minor=${BASH_REMATCH[2]}
-      if [ "$python_version_major" -ge 3 ] && [ "$python_version_minor" -ge 6 ]; then
-        ASDF_PYAPP_RESOLVED_PYTHON_PATH="$p"
-        break
+  for n in "${nodes[@]}"; do
+    local node_version
+    log "Testing '$n' ..."
+    if node_version=$(get_node_version "$n" 2>/dev/null); then
+      if [[ $node_version =~ ^([0-9]+)\.([0-9]+)\. ]]; then
+        local node_version_major=${BASH_REMATCH[1]}
+        if [ "$node_version_major" -ge 16 ]; then
+          ASDF_NODEAPP_RESOLVED_NODE_PATH="$n"
+          break
+        fi
       fi
     else
       continue
@@ -110,16 +96,18 @@ resolve_python_path() {
 
   popd >/dev/null || fail "Failed to popd"
 
-  if [ -z "$ASDF_PYAPP_RESOLVED_PYTHON_PATH" ]; then
-    fail "Failed to find python3 >= 3.6"
+  if [ -z "$ASDF_NODEAPP_RESOLVED_NODE_PATH" ]; then
+    fail "Failed to find node >= 16"
   else
-    log "Using python3 at '$ASDF_PYAPP_RESOLVED_PYTHON_PATH'"
+    log "Using node at '$ASDF_NODEAPP_RESOLVED_NODE_PATH'"
   fi
 }
 
 get_package_versions() {
   local package=$1
-  curl "https://pypi.org/pypi/${package}/json" | jq -r '.releases | keys | .[]' | sort -V
+  # Escape package name for URL (replace @ with %40)
+  local escaped_package=${package//@/%40}
+  curl -s "https://registry.npmjs.org/${escaped_package}" | jq -r '.versions | keys | .[]' | sort -V
 }
 
 install_version() {
@@ -128,31 +116,17 @@ install_version() {
   local full_version="$3"
   local install_path="$4"
 
-  local venv_args=()
-  local pip_args=("--disable-pip-version-check")
-
   local versions=(${full_version//\@/ })
   local app_version=${versions[0]}
   if [ "${#versions[@]}" -gt 1 ]; then
 
-    if ! asdf plugin list | grep python; then
-      fail "Cannot install $1 $3 - asdf python plugin is not installed!"
+    if ! asdf plugin list | grep nodejs; then
+      fail "Cannot install $1 $3 - asdf nodejs plugin is not installed!"
     fi
 
-    python_version=${versions[1]}
-    asdf install python "$python_version"
-    ASDF_PYAPP_RESOLVED_PYTHON_PATH=$(ASDF_PYTHON_VERSION="$python_version" asdf which python3)
-  fi
-
-  # check for venv copies
-  if [ "${#versions[@]}" -gt 1 ] || [ "$ASDF_PYAPP_VENV_COPY_MODE" == "1" ]; then
-    # special check for macOS
-    # TODO: write a test for this somehow
-    if [ "$ASDF_PYAPP_RESOLVED_PYTHON_PATH" == "/usr/bin/python3" ] && [[ "$OSTYPE" == "darwin"* ]]; then
-      log "Copying /usr/bin/python3 on macOS does not work, symlinking"
-    else
-      venv_args+=("--copies")
-    fi
+    node_version=${versions[1]}
+    asdf install nodejs "$node_version"
+    ASDF_NODEAPP_RESOLVED_NODE_PATH=$(ASDF_NODEJS_VERSION="$node_version" asdf which node)
   fi
 
   if [ "${install_type}" != "version" ]; then
@@ -161,13 +135,16 @@ install_version() {
 
   mkdir -p "${install_path}"
 
-  # Make a venv for the app
-  local venv_path="$install_path"/venv
-  "$ASDF_PYAPP_RESOLVED_PYTHON_PATH" -m venv ${venv_args[@]+"${venv_args[@]}"} "$venv_path"
+  # Create a clean npm installation directory
+  local npm_prefix="$install_path"/npm
+  mkdir -p "$npm_prefix"
 
-  # setuptools might be upgraded by itself https://stackoverflow.com/a/71239956/4468
-  "$venv_path"/bin/python3 -m pip install ${pip_args[@]+"${pip_args[@]}"} --upgrade setuptools
-  "$venv_path"/bin/python3 -m pip install ${pip_args[@]+"${pip_args[@]}"} --upgrade pip wheel
+  # Get the npm path associated with our node
+  local npm_path
+  npm_path=$(dirname "$ASDF_NODEAPP_RESOLVED_NODE_PATH")/npm
+  if [ ! -f "$npm_path" ]; then
+    npm_path="npm"
+  fi
 
   (
   # export env vars
@@ -176,18 +153,24 @@ install_version() {
     eval "$(grep '^export ' "$ASDF_PLUGIN_PATH/install_env" | awk '{print $1 " " $2}' | grep -v ';')"
   fi
 
-  # Install the App
-  "$venv_path"/bin/python3 -m pip install "$package"=="$app_version"
+  # Install the App globally in our isolated prefix
+  cd "$npm_prefix"
+  PATH="$(dirname "$ASDF_NODEAPP_RESOLVED_NODE_PATH"):$PATH" "$npm_path" install -g --prefix="$npm_prefix" "$package@$app_version"
   )
 
-  # Set up a venv for the linker helper
-  local link_apps_venv="$install_path"/tmp/link_apps
-  mkdir -p "$(dirname "$link_apps_venv")"
-  "$ASDF_PYAPP_RESOLVED_PYTHON_PATH" -m venv "$link_apps_venv"
-  "$link_apps_venv"/bin/python3 -m pip install "${pip_args[@]}" -r "$plugin_dir"/lib/helpers/link_apps/requirements.txt
+  # Create bin directory and symlink executables
+  mkdir -p "$install_path"/bin
 
-  # Link Apps
-  "$link_apps_venv"/bin/python3 "$plugin_dir"/lib/helpers/link_apps/link_apps.py "$venv_path" "$package" "$install_path"/bin
+  # Find all executables in the npm bin directory
+  local npm_bin_dir="$npm_prefix/bin"
+  if [ -d "$npm_bin_dir" ]; then
+    for exe in "$npm_bin_dir"/*; do
+      if [ -f "$exe" ] && [ -x "$exe" ]; then
+        local exe_name=$(basename "$exe")
+        ln -sf "$exe" "$install_path/bin/$exe_name"
+      fi
+    done
+  fi
 }
 
-resolve_python_path
+resolve_node_path
