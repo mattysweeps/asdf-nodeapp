@@ -167,7 +167,12 @@ install_version() {
     for exe in "$npm_bin_dir"/*; do
       if [ -f "$exe" ] && [ -x "$exe" ]; then
         local exe_name=$(basename "$exe")
-        ln -sf "$exe" "$install_path/bin/$exe_name"
+        # using a shim instead of a sym link
+        cat > "$install_path/bin/$exe_name" << END
+#!/usr/bin/env bash
+"$npm_prefix/../../../nodejs/$node_version/bin/node" "$exe" "\$@"
+END
+        chmod +x "$install_path/bin/$exe_name"
       fi
     done
   fi
