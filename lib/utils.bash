@@ -30,6 +30,15 @@ log() {
   fi
 }
 
+# asdf plugin names can't start with @ or contain /
+# hacky but use __and__ and __slash__ as placeholders.
+get_package_escaped() {
+  local package=$1
+  package="${package//__and__/@}"
+  package="${package//__slash__//}"
+  echo $package
+}
+
 get_node_version() {
   local node_path="$1"
   local regex='v(.+)'
@@ -104,14 +113,14 @@ resolve_node_path() {
 }
 
 get_package_versions() {
-  local package=$1
+  local package=$(get_package_escaped "$1")
   # Escape package name for URL (replace @ with %40)
   local escaped_package=${package//@/%40}
   curl -s "https://registry.npmjs.org/${escaped_package}" | jq -r '.versions | keys | .[]' | sort -V
 }
 
 install_version() {
-  local package="$1"
+  local package=$(get_package_escaped "$1")
   local install_type="$2"
   local full_version="$3"
   local install_path="$4"
